@@ -28,29 +28,30 @@ The system follows an agentic execution architecture where the LLM plans steps, 
 
 ```mermaid
 flowchart TD
-  U[Client (Swagger UI / curl)] -->|POST /runs| API[FastAPI API (app/main.py)]
 
-  API --> AR[Agent Runner (Planning + Execution)]
+U[Client - Swagger UI or curl] -->|POST /runs| API[FastAPI API app/main.py]
 
-  AR -->|store runs + messages| PG[(Postgres: Runs + Messages)]
-  AR -->|short-term memory| REDIS[(Redis: Memory Cache)]
+API --> AR[Agent Runner Planning and Execution]
 
-  AR -->|prompt + context| LLM[Local LLM Provider (Ollama + Llama 3.x)]
+AR -->|store runs and messages| PG[(Postgres Runs and Messages)]
+AR -->|short term memory| REDIS[(Redis Memory Cache)]
 
-  LLM -->|tool calls| TR[Tool Registry (app/tools/registry.py)]
+AR -->|prompt and context| LLM[Local LLM Provider Ollama Llama 3]
 
-  TR --> CALC[Calculator Tool]
-  TR --> SEARCH[Text Search Tool]
-  TR --> DBL[DB Lookup Tool]
-  TR --> TEX[Text Explain Tool]
+LLM -->|tool calls| TR[Tool Registry app/tools/registry.py]
 
-  CALC --> AR
-  SEARCH --> AR
-  DBL --> AR
-  TEX --> AR
+TR --> CALC[Calculator Tool]
+TR --> SEARCH[Text Search Tool]
+TR --> DBL[DB Lookup Tool]
+TR --> TEX[Text Explain Tool]
 
-  AR -->|final answer + steps| API
-  API -->|GET /runs/{run_id}| U
+CALC --> AR
+SEARCH --> AR
+DBL --> AR
+TEX --> AR
+
+AR -->|final answer and steps| API
+API -->|GET /runs/run_id| U
 ```
 
 ## 🧠 Architecture Overview
