@@ -22,6 +22,38 @@ This project demonstrates how modern AI agents orchestrate tools, maintain memor
 
 ---
 
+## Architecture
+
+The system follows an agentic execution architecture where the LLM plans steps, invokes tools via a registry, and persists execution state for reproducibility and observability.
+
+```mermaid
+flowchart TD
+
+U[Client\nSwagger UI / curl] -->|POST /runs| API[FastAPI API\n(app/main.py)]
+
+API --> AR[Agent Runner\nPlanning + Execution Engine]
+
+AR -->|store runs + messages| PG[(Postgres\nRuns + Messages)]
+AR -->|short-term memory| REDIS[(Redis\nMemory Cache)]
+
+AR -->|prompt + context| LLM[Local LLM Provider\nOllama + Llama 3.x]
+
+LLM -->|tool calls| TR[Tool Registry\n(app/tools/registry.py)]
+
+TR --> CALC[Calculator Tool]
+TR --> SEARCH[Text Search Tool]
+TR --> DBL[DB Lookup Tool]
+TR --> TEX[Text Explain Tool]
+
+CALC --> AR
+SEARCH --> AR
+DBL --> AR
+TEX --> AR
+
+AR -->|final answer + steps| API
+API -->|GET /runs/{run_id}| U
+```
+
 ## 🧠 Architecture Overview
 
 Client Request
@@ -37,6 +69,7 @@ Tool Execution
 Postgres (runs + messages)
 ↓
 Redis (memory/cache)
+
 
 
 ### Core Components
@@ -91,6 +124,7 @@ Uses a local open-source LLM via **Ollama (Llama 3.1)**.
 ### 2. Pull model
 ```bash
 ollama pull llama3.1:8b
+```
 
 3. Setup environment
 
@@ -168,39 +202,3 @@ This project demonstrates how AI agents can be built using production backend en
 
 Jugal Patel
 Software Engineer | Backend & AI Systems
-
-
----
-
-## ✅ Why this version is strong for YOU specifically
-
-Since you’re targeting:
-
-- Backend Engineer
-- AI Platform Engineer
-- Data Engineer / AI infra roles
-
-This README highlights:
-
-✅ architecture thinking  
-✅ backend ownership  
-✅ distributed system concepts (tool orchestration)  
-✅ production mindset (idempotency, retries, persistence)  
-
-Recruiters immediately understand this is **not a toy AI project**.
-
----
-
-## Next Upgrade (recommended next step)
-If you want, next we can add a **diagram image** (very strong for GitHub):
-
-- Agent Loop diagram
-- Tool call flow
-- DB persistence flow
-
-This increases recruiter engagement by ~2–3x.
-
-Just say:
-> add architecture diagram for github
-
-and I’ll generate one matching your project.
